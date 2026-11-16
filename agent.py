@@ -95,16 +95,6 @@ def seats_left(flight_number: str, date: str) -> Dict[str, Any]:
                      "and that the date is YYYY-MM-DD."}
 
 
-def fare_rules(section: str) -> Dict[str, Any]:
-    """One section of the Handbook excerpt, verbatim, from fare_rules_excerpt.md."""
-    text = (DATA_DIR / "fare_rules_excerpt.md").read_text()
-    wanted = str(section).strip().rstrip(".")
-    for part in re.split(r"(?m)^### ", text)[1:]:
-        if part.split(".", 1)[0].strip() == wanted:
-            return {"handbook": "Larkspur Handbook v14.3", "section": "### " + part.strip()}
-    return {"error": f"Section {section} is not in the excerpt. Available sections: 4, 5, 6, 7."}
-
-
 def cause_in_plain_words(cause_code: str, language: str = "en") -> Dict[str, Any]:
     """The customer-facing label for a cause code, from disruption_policy.json."""
     labels = json.loads((DATA_DIR / "disruption_policy.json").read_text())["cause_labels_customer"]
@@ -142,39 +132,7 @@ def reopen_stats(intent_label: str = "") -> Dict[str, Any]:
 
 
 EXTRA_TOOLS: List[Dict[str, Any]] = [   # ✏️ Build 2, step 2.1: schemas for the tools you add
-    {
-        "name": "next_available_day",
-        "description": (
-            "Find the earliest date, on or after a given date, that has an open seat on a "
-            "Larkspur flight between two airports. Use this when the customer asks when "
-            "they can fly, e.g. 'what is the first day I can travel?' or 'when is the soonest "
-            "I can get there?', especially when same-day options are full or they want to "
-            "travel on a later day. It answers with a date, not a list of flights: to show "
-            "concrete rebooking options for the disrupted segment, use search_alternatives "
-            "instead. Call lookup_booking first so origin, destination, date and cabin come "
-            "from the booking's segment, never from guesses. Never state an availability "
-            "date from memory; if this tool finds no seat, say so."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "origin": {"type": "string", "description": (
-                    "Departure airport, 3-letter IATA code from the booking's segment, e.g. DEN."
-                )},
-                "dest": {"type": "string", "description": (
-                    "Arrival airport, 3-letter IATA code from the booking's segment, e.g. AUS."
-                )},
-                "date": {"type": "string", "description": (
-                    "Earliest date the customer can travel, in ISO format YYYY-MM-DD, "
-                    "e.g. 2025-05-08. Usually the booking's segment date."
-                )},
-                "cabin": {"type": "string", "description": (
-                    "Cabin code from the booking's segment, e.g. Y for economy. Defaults to Y."
-                )},
-            },
-            "required": ["origin", "dest", "date"],
-        },
-    },
+    # next_available_day and fare_rules now come from the MCP server (step 2.2), not from here.
     {   # from a teammate, description as sent
         "name": "ground_stop_status",
         "description": "Checks the status of a ground stop when it will be lifted.",
@@ -193,28 +151,6 @@ EXTRA_TOOLS: List[Dict[str, Any]] = [   # ✏️ Build 2, step 2.1: schemas for 
             "type": "object",
             "properties": {"flight_number": {"type": "string"}, "date": {"type": "string"}},
             "required": ["flight_number", "date"],
-        },
-    },
-    {
-        "name": "fare_rules",
-        "description": (
-            "Read one section of Larkspur's Handbook (v14.3) word for word: the reasoning "
-            "behind the rules. Use this when the customer asks WHY they do or do not get "
-            "something, e.g. 'why don't I get a hotel?', 'why no compensation?', 'why can't "
-            "you refund me here?', so the explanation quotes Larkspur's own wording instead "
-            "of paraphrasing from memory. check_policy decides what this specific customer is "
-            "owed; this tool explains the rule behind that decision. Sections: 4 = fare "
-            "families (Basic, Main, Main Plus, First); 5 = what happens when we delay, cancel "
-            "or divert, by cause and delay length; 6 = care while you wait (meals, hotel, "
-            "ground transport, goodwill); 7 = what chat automation will not do."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "section": {"type": "string", "enum": ["4", "5", "6", "7"],
-                            "description": "Handbook section number, as listed in the description."},
-            },
-            "required": ["section"],
         },
     },
     {
@@ -263,10 +199,8 @@ EXTRA_TOOLS: List[Dict[str, Any]] = [   # ✏️ Build 2, step 2.1: schemas for 
     },
 ]
 LOCAL_TOOLS: Dict[str, Any] = {          # ✏️ Build 2, step 2.1: the functions behind them
-    "next_available_day": next_available_day,
     "ground_stop_status": ground_stop_status,
     "seats_left": seats_left,
-    "fare_rules": fare_rules,
     "cause_in_plain_words": cause_in_plain_words,
     "reopen_stats": reopen_stats,
 }
@@ -332,7 +266,7 @@ def run_agent(pnr: str, last_name: str, message: str) -> str:            # ✏�
 def tool_list() -> List[Dict[str, Any]]:                   # ✏️ Build 2, step 2.2
     """Given. Exactly what Claude is offered on every turn; run.py --show-tools
     prints this list."""
-    return build_tools() + EXTRA_TOOLS
+    return build_tools() + EXTRA_TOOLS + mcp_client.tools()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
