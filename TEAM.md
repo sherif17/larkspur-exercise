@@ -15,5 +15,5 @@ decides in the moment who does what.
 - Youssef Mohamed
 - Yahya  Amer
 - Dan Sadler
-- Youssef Abdelmoanmem
+- Youssef Abdelmoamen
 - Ahmed badawy 
