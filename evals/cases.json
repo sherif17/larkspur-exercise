@@ -150,7 +150,7 @@
       ]
     },
     {
-    "id": "delay-0101",
+    "id": "swch-0101",
     "suite": "entitlements",
     "hard_gate": false,
     "shape": "Short delay, but Main Plus fare makes a free same-day change available",
