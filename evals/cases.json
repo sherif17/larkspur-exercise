@@ -148,6 +148,27 @@
           "type": "judge"
         }
       ]
-    }
+    },
+    {
+    "id": "delay-0101",
+    "suite": "entitlements",
+    "hard_gate": false,
+    "shape": "Short delay, but Main Plus fare makes a free same-day change available",
+    "author": "Yahya Amer",
+    "pnr": "M3XR8T",
+    "last_name": "Whitaker",
+    "message": "My flight is delayed, I need to switch it now because I have an important meeting that I'll miss because of this delay. Is there any available flights before that?",
+    "expect": "Look for earlier flights and present them to the customer without finalizing any changes on their behalf, let them know if there aren't any available options and give them viable alternatives and communicate them clearly.",
+    "graders": [
+      {
+        "type": "rules",
+        "must_call": ["search_alternatives"],
+        "must_not_call": ["confirm_rebooking"]
+      },
+      {
+        "type": "judge"
+      }
+    ]
+  }
   ]
 }
