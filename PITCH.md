@@ -8,7 +8,7 @@ Number: 72,074 to 101,527 tokens in, total of the five tickets, after adding our
 Safety check: It never confirms a rebooking: it holds a seat and tells the customer that only their own Confirm click finalizes it. confirm_rebooking was not called in any of our runs, including all five tickets.
 Next: Let the agent take the number of passengers into account when it looks for the first day with free seats, so a family of three is not told "you can fly today" when only one seat is open.
 Still broken: On the missed-connection ticket (T9WN4C) the agent treats it as a plain delay and never asks about or mentions the connection the customer is worried about.
-Lever: <cost | speed | intelligence>
+Lever: cost
 
 ## Priya asked
 
